@@ -1,6 +1,3 @@
-
-
-using KIITStarter.Data;
 using KIITStarter.Models;
 using KIITStarter.Repositories;
 
@@ -31,7 +28,14 @@ public class CourseService : ICourseService
 
     public Task<IEnumerable<Course>> GetCourses()
     {
-        return _courseRepository.GetAll();
+        try
+        {
+            return _courseRepository.GetAll();
+        }
+        catch (System.Exception)
+        {
+            throw new CustomErrorException(new CustomError { Code = "COURSES_FETCH_ERROR", Message = "Failed to fetch courses data", ReportToTeam = true });
+        }
     }
 
     public Task<Course> CreateCourse(Course course)

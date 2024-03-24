@@ -39,55 +39,63 @@ public class LogReporter : ILogEventSink
         {
             Console.WriteLine("\n -> Reporting Log to Teams \n");
 
-            var adaptiveCardJson = @"{
-                ""type"": ""message"",
-                ""attachments"": [
-                    {
-                    ""contentType"": ""application/vnd.microsoft.card.adaptive"",
-                    ""content"": {
-                        ""type"": ""AdaptiveCard"",
-                        ""body"": [
-                        {
-                        ""type"": ""TextBlock"",
-                        ""size"": ""Medium"",
-                        ""weight"": ""Bolder"",
-                        ""text"": """ + error.Code + @"""
-                        },
-                        {
-                            ""type"": ""TextBlock"",
-                            ""text"": """ + error.Message + @"""
-                        },
-                        {
-                            ""type"": ""FactSet"",
-                             ""facts"": [";
+            var cardFacts = new List<Fact> { };
 
             if (!string.IsNullOrEmpty(error.Payload))
             {
-                adaptiveCardJson += @"
-                            {
-                                ""title"": ""Payload"",
-                                ""value"": """ + error.Payload.Replace("\"", "\\\"") + @"""
-                            },";
+                cardFacts.Add(new Fact
+                {
+                    Title = "Payload",
+                    Value = error.Payload?.Replace("\"", "\\\"") ?? string.Empty
+                });
             }
 
-            adaptiveCardJson += @" 
-                            {
-                                ""title"": ""Reported At"",
-                                ""value"": """ + DateTime.Now + @"""
-                            }
-             ],
-                        }
-                        ],
-                        ""$schema"": ""http://adaptivecards.io/schemas/adaptive-card.json"",
-                        ""version"": ""1.0""
-                    }
-                    }
-                ]
-                }";
+            cardFacts.Add(new Fact
+            {
+                Title = "Reported At",
+                Value = DateTime.Now.ToString()
+            });
 
+            var adaptiveCardData = new MSAdaptiveCard
+            {
+                Type = "message",
+                Attachments = new List<Attachment> {
+                new Attachment {
+                    ContentType = "application/vnd.microsoft.card.adaptive",
+                    Content = new AdaptiveCardContent
+                    {
+                        Type = "AdaptiveCard",
+                        Body = new List<CardBody>
+                        {
+                            new CardBody
+                            {
+                                Type = "TextBlock",
+                                Size = "Medium",
+                                Weight = "Bolder",
+                                Text = error.Code
+                            },
+                            new CardBody
+                            {
+                                Type = "TextBlock",
+                                Text = error.Message
+                            },
+                            new CardBody
+                            {
+                                Type = "FactSet",
+                                FactSet = new FactSet
+                                { Facts = cardFacts }
+                            }
+                        },
+                        Schema = "http://adaptivecards.io/schemas/adaptive-card.json",
+                        Version = "1.0"
+                        }
+                }
+                    }
+            };
+
+            var adaptiveCardJson = JsonSerializer.Serialize(adaptiveCardData);
 
             Console.Write(adaptiveCardJson);
-
 
             var webhookUrl = _config["MSTeamsWebhook"];
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));

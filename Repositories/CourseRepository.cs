@@ -7,7 +7,7 @@ namespace KIITStarter.Repositories;
 public interface ICourseRepository
 {
     Task<IEnumerable<Course>> GetAll();
-    Task<Course> GetById(int id);
+    Task<Course?> GetById(int id);
     Task<Course> Create(Course course);
     Task Update(int id, Course course);
     Task Delete(int id);
@@ -32,16 +32,19 @@ public class CourseRepository : ICourseRepository
     public async Task Delete(int id)
     {
         var course = await _context.Courses.FindAsync(id);
-        _context.Courses.Remove(course);
-        await _context.SaveChangesAsync();
+        if (course != null)
+        {
+            _context.Courses.Remove(course);
+            await _context.SaveChangesAsync();
+        }
     }
 
     public async Task<IEnumerable<Course>> GetAll()
     {
-        return _context.Courses.Include(x => x.Author).ToList();
+        return await _context.Courses.Include(x => x.Author).ToListAsync();
     }
 
-    public async Task<Course> GetById(int id)
+    public async Task<Course?> GetById(int id)
     {
         return await _context.Courses.FindAsync(id);
     }
