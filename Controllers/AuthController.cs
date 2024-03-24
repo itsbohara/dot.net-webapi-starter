@@ -6,11 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
-
-// Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames
-// System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames
-
-
 [Route("/auth/")]
 [ApiController]
 public class AuthController : ControllerBase
@@ -35,8 +30,13 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<AuthResponse>> RegisterUser(UserRegisterRequest userRequest)
     {
         var result = await _userService.Register(userRequest);
-        if (result.success) return Ok(result);
-        else return BadRequest(result);
+        
+        if (result.success)
+        {
+            return Ok(result);
+        }
+
+        return BadRequest(result);
     }
 
     [Authorize]

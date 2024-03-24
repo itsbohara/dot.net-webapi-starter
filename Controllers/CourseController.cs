@@ -1,12 +1,6 @@
 using KIITStarter.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
-
 
 [Route("courses")]
 [ApiController]
@@ -21,17 +15,10 @@ public class CoursesController : ControllerBase
         _courseService = courseService;
     }
 
-    [HttpGet("all")]
+    [HttpGet]
     public async Task<IEnumerable<Course>> GetCourses()
     {
-        try
-        {
-            return await _courseService.GetCourses();
-        }
-        catch (System.Exception)
-        {
-            throw new CustomErrorException(new CustomError { Code = "COURSE_FETCH_ERROR", Message = "Failed to fetch courses data", ReportToTeam = true });
-        }
+        return await _courseService.GetCourses();
     }
 
     [HttpGet("{id}")]
@@ -47,8 +34,8 @@ public class CoursesController : ControllerBase
         return course;
     }
 
-    [HttpPost("create")]
-    public async Task<ActionResult<Course>> PostCourse(Course course)
+    [HttpPost]
+    public async Task<ActionResult<Course>> CreateCourse(Course course)
     {
         try
         {
@@ -75,6 +62,7 @@ public class CoursesController : ControllerBase
         try
         {
             await _courseService.DeleteCourse(id);
+
             return NoContent();
         }
         catch (System.Exception)

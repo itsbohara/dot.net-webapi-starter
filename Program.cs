@@ -43,12 +43,14 @@ services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 
 //
-services.AddScoped<IUserRepository, UserRepository>();
-services.AddScoped<ICourseRepository, CourseRepository>();
 services.AddScoped<IJwtService, JwtService>();
 
+services.AddScoped<ICourseRepository, CourseRepository>();
 services.AddScoped<ICourseService, CourseService>();
+
+services.AddScoped<IUserRepository, UserRepository>();
 services.AddScoped<IUserService, UserService>();
+
 services.AddScoped<ISessionService, SessionService>();
 
 var app = builder.Build();
@@ -65,13 +67,9 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<JwtMiddleware>();
 
 app.UseMiddleware<ExceptionMiddleware>();
-// app.UseAuthentication();
-// app.UseAuthorization();
 
 app.UseSerilogRequestLogging();
 
 app.MapControllers();
 
 app.Run();
-
-//
